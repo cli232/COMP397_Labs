@@ -11,6 +11,7 @@ public class PlayerInput : MonoBehaviour
     [SerializeField] private float maxSpeed = 10f;
     [SerializeField] private float gravity = -10f;
     private Vector3 velocity;
+    private float camXRotation;
     [SerializeField] private float rotationSpeed = 10f;
     [SerializeField] private float mouseSensY = 5f;
     [SerializeField, Child] private Camera cam;
@@ -24,6 +25,10 @@ public class PlayerInput : MonoBehaviour
     {
         move = InputSystem.actions.FindAction("Player/Move");
         look = InputSystem.actions.FindAction("Player/Look");
+        move.Enable();
+        look.Enable();
+        Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     // Update is called once per frame
@@ -36,14 +41,14 @@ public class PlayerInput : MonoBehaviour
         velocity.y += gravity * Time.deltaTime;
         movement *= maxSpeed * Time.deltaTime;
         movement += velocity;
-        controller.Move(velocity * Time.deltaTime);
+        controller.Move(movement);
 
         //Player rotation
         transform.Rotate(Vector3.up * readLook.x * rotationSpeed * Time.deltaTime);
 
         //Camera rotation
-        mouseSensY = readLook.y * mouseSensY;
-        mouseSensY = Mathf.Clamp(mouseSensY, -90f, 90f);
-        cam.gameObject.transform.localRotation = Quaternion.Euler(mouseSensY, 0, 0);
+        camXRotation += readLook.y * mouseSensY * Time.deltaTime * -1;
+        camXRotation = Mathf.Clamp(camXRotation, -90f, 90f);
+        cam.gameObject.transform.localRotation = Quaternion.Euler(camXRotation, 0, 0);
     }
 }
